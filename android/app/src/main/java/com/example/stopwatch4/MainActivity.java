@@ -1,4 +1,4 @@
-package com.example.stopwatch4;
+package com.example.stopwatch;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
