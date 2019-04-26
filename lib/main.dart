@@ -23,25 +23,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  GoogleMapController myController;
+  GoogleMapController mapController;
   static const LatLng _center = const LatLng(40.7049444, -74.0091771);
   @override
   build(context) {
     return Stack(children: <Widget>[
-      GoogleMap(
-          initialCameraPosition: CameraPosition(
-            target: _center,
-            zoom: 15.0,
-          ),
-          onMapCreated: _onMapCreated,
-          myLocationEnabled: true,
-          mapType: MapType.hybrid)
+      Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: _center,
+                zoom: 15.0,
+              ),
+              onMapCreated: _onMapCreated,
+              myLocationEnabled: true,
+              mapType: MapType.terrain))
     ]);
   }
 
   _onMapCreated(GoogleMapController controller) {
     setState(() {
-      myController = controller;
+      mapController = controller;
     });
   }
 }

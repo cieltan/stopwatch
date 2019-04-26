@@ -55,6 +55,13 @@ packages:
       url: "git://github.com/flutter/plugins"
     source: git
     version: "0.5.9"
+  location:
+    dependency: "direct main"
+    description:
+      name: location
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.3.5"
   matcher:
     dependency: transitive
     description:

@@ -27,6 +27,7 @@ dependencies:
     git:
       url: git://github.com/flutter/plugins
       path: packages/google_maps_flutter
+  location: 2.3.5
 dev_dependencies:
   flutter_test:
     sdk: flutter
