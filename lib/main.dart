@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+// import 'package:location/location.dart';
 import 'dart:async';
 
 void main() => runApp(MyApp());
@@ -24,8 +26,52 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   GoogleMapController mapController;
+  List<Marker> locations = [];
+  dynamic deviceLocation;
+  // StreamSubscription<Position> streamSubscription;
+  bool trackLocation = false;
   static const LatLng _center = const LatLng(40.7049444, -74.0091771);
   @override
+  initState() {
+    //TODO: implement initState
+    super.initState;
+    checkGps();
+    //  use locateUser method to find LatLng of user
+    _locateUser();
+    // locations.add(Marker(
+    //     markerId: MarkerId('myMarker'),
+    //     draggable: false,
+    //     onTap: () {
+    //       print('Marker Tapped');
+    //     },
+    //     position: LatLng(40.7049444, -74.0091771)));
+  }
+
+  checkGps() async {
+    var geoLocator = Geolocator();
+    var status = await geoLocator.checkGeolocationPermissionStatus();
+    if (status == GeolocationStatus.granted) {
+      print("Success: Geolocation successful");
+    } else {
+      print("Failed");
+    }
+  }
+
+  Future<Position> _locateUser() async {
+    var result = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      locations.add(Marker(
+          markerId: MarkerId('myMarker'),
+          draggable: false,
+          onTap: () {
+            print('Marker Tapped');
+          },
+          position: LatLng(result.latitude, result.longitude)));
+    });
+    return result;
+  }
+
   build(context) {
     return Stack(children: <Widget>[
       Container(
@@ -38,7 +84,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               onMapCreated: _onMapCreated,
               myLocationEnabled: true,
-              mapType: MapType.terrain))
+              mapType: MapType.terrain,
+              markers: Set.from(locations)))
     ]);
   }
 
