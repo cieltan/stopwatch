@@ -27,7 +27,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   GoogleMapController mapController;
   List<Marker> locations = [];
-  dynamic deviceLocation;
+  Map<MarkerId, Marker> markers =
+      <MarkerId, Marker>{}; // CLASS MEMBER, MAP OF MARKS
   // StreamSubscription<Position> streamSubscription;
   bool trackLocation = false;
   static const LatLng _center = const LatLng(40.7049444, -74.0091771);
@@ -73,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   build(context) {
-    return Stack(children: <Widget>[
+    return Stack(alignment: Alignment.bottomCenter, children: <Widget>[
       Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
@@ -85,7 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
               onMapCreated: _onMapCreated,
               myLocationEnabled: true,
               mapType: MapType.terrain,
-              markers: Set.from(locations)))
+              markers: Set.from(locations))),
+      RaisedButton(child: const Text('Add a marker!'), onPressed: () {})
     ]);
   }
 

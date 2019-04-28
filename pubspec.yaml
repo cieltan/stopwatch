@@ -29,6 +29,8 @@ dependencies:
       path: packages/google_maps_flutter
   location: 2.3.5
   geolocator: ^3.0.1
+  firebase_core: 0.3.4
+  cloud_firestore: ^0.9.13+1
 dev_dependencies:
   flutter_test:
     sdk: flutter
