@@ -15,21 +15,20 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: Scaffold(body: MyHomePage()));
+        home: Scaffold(body: FireMap()));
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class FireMap extends StatefulWidget {
   @override
-  State createState() => _MyHomePageState();
+  State createState() => _FireMapState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _FireMapState extends State<FireMap> {
   GoogleMapController mapController;
   List<Marker> locations = [];
-  Map<MarkerId, Marker> markers =
-      <MarkerId, Marker>{}; // CLASS MEMBER, MAP OF MARKS
-  // StreamSubscription<Position> streamSubscription;
+  var geoLocator = Geolocator();
+  String searchAddr;
   bool trackLocation = false;
   static const LatLng _center = const LatLng(40.7049444, -74.0091771);
   @override
@@ -39,23 +38,26 @@ class _MyHomePageState extends State<MyHomePage> {
     checkGps();
     //  use locateUser method to find LatLng of user
     _locateUser();
-    // locations.add(Marker(
-    //     markerId: MarkerId('myMarker'),
-    //     draggable: false,
-    //     onTap: () {
-    //       print('Marker Tapped');
-    //     },
-    //     position: LatLng(40.7049444, -74.0091771)));
   }
 
   checkGps() async {
-    var geoLocator = Geolocator();
     var status = await geoLocator.checkGeolocationPermissionStatus();
+    var locationOptions =
+        LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
     if (status == GeolocationStatus.granted) {
       print("Success: Geolocation successful");
     } else {
       print("Failed");
     }
+    StreamSubscription<Position> positionStream = geoLocator
+        .getPositionStream(locationOptions)
+        .listen((Position position) {
+      print(position == null
+          ? 'Unknown'
+          : position.latitude.toString() +
+              ', ' +
+              position.longitude.toString());
+    });
   }
 
   Future<Position> _locateUser() async {
@@ -68,6 +70,9 @@ class _MyHomePageState extends State<MyHomePage> {
           onTap: () {
             print('Marker Tapped');
           },
+          infoWindow: InfoWindow(
+              title: 'Current Location',
+              snippet: '${result.latitude}, ${result.longitude}'),
           position: LatLng(result.latitude, result.longitude)));
     });
     return result;
@@ -81,15 +86,56 @@ class _MyHomePageState extends State<MyHomePage> {
           child: GoogleMap(
               initialCameraPosition: CameraPosition(
                 target: _center,
-                zoom: 15.0,
+                zoom: 10.0,
               ),
               onMapCreated: _onMapCreated,
               myLocationEnabled: true,
               mapType: MapType.terrain,
               markers: Set.from(locations))),
-      RaisedButton(child: const Text('Add a marker!'), onPressed: () {})
+      Positioned(
+          top: 50.0,
+          right: 15.0,
+          left: 15.0,
+          child: Container(
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white),
+              child: TextField(
+                  decoration: InputDecoration(
+                      hintText: 'Enter Address',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
+                      suffixIcon: IconButton(
+                          icon: Icon(Icons.search),
+                          onPressed: searchandNavigate,
+                          iconSize: 30.0)),
+                  onChanged: (val) {
+                    setState(() {
+                      searchAddr = val;
+                    });
+                  }))),
+      Positioned(
+          bottom: 50.0,
+          left: 10.0,
+          child: FlatButton(
+              child: Icon(Icons.pin_drop, color: Colors.white),
+              color: Colors.blue,
+              onPressed: _addMarker))
     ]);
   }
+
+  searchandNavigate() {
+    Geolocator().placemarkFromAddress(searchAddr).then((result) {
+      mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+          target:
+              LatLng(result[0].position.latitude, result[0].position.longitude),
+          zoom: 16.0)));
+    });
+  }
+
+  _addMarker() {}
 
   _onMapCreated(GoogleMapController controller) {
     setState(() {
